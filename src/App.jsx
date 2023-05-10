@@ -1,4 +1,5 @@
 import { Center, Flex } from "@chakra-ui/react";
+import ChatInput from "./components/chatInput";
 
 function App() {
   return (
@@ -21,7 +22,9 @@ function App() {
             Box
           </Center>
         </Flex>
-        <Center position="absolute" bottom="5"></Center>
+        <Center width="100%" position="absolute" bottom="5">
+          <ChatInput />
+        </Center>
       </Flex>
     </Flex>
   );
