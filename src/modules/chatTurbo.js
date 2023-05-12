@@ -11,15 +11,15 @@ function chatTurbo(system, chat) {
 
           
         system = {"role": "system", "content": system}
-        chat.unshift(system)
+        // chat.unshift(system)
 
         axios
           .post(
             config.endpoint,
             {
               model: 'gpt-3.5-turbo',
-              messages: chat,
-              max_tokens: 400,
+              messages: [system, ...chat],
+              max_tokens: 2000,
               n: 1,
               temperature: 1.1,
             },
@@ -30,8 +30,7 @@ function chatTurbo(system, chat) {
             }
           )
           .then((res) => {
-            console.log(res)
-            // resolve(res.data.choices[0].message.content);
+            resolve(res.data.choices[0].message.content);
           })
           .catch((err) => {
             console.error(err);

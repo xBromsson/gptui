@@ -1,16 +1,27 @@
-import { Center, Flex } from "@chakra-ui/react";
+import { Box, Center, Flex, Spacer, VStack } from "@chakra-ui/react";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import ChatInput from "./components/chatInput";
 import { db } from "./firebase/firebaseConfig.js";
 import { useState } from "react";
 import chatTurbo from "./modules/chatTurbo";
+import { FaRandom } from "react-icons/fa";
 
 function App() {
-  const [messages, setMessages] = useState();
-  const [input, setInput] = useState();
+  const [messages, setMessages] = useState([]);
 
-  const handleSubmit = () => {
-    console.log("submitted");
+  const handleSubmit = async (input) => {
+    console.log(input);
+
+    // prettier-ignore
+    const userMessage = [...messages, {"role": "user", "content": input}]
+
+    // prettier-ignore
+    // const array = [...messages, { "role": "user", "content": input}];
+
+    // prettier-ignore
+    const data = await chatTurbo("You are a helpful assistant", userMessage);
+    setMessages([...userMessage, { role: "assistant", content: data }]);
+    // console.log(data);
 
     // addDoc(collection(db, "messages"), input)
     //   .then((docRef) => {
@@ -20,6 +31,7 @@ function App() {
     //     console.error("Error adding document: ", err);
     //   });
   };
+  console.log(messages);
 
   const getData = () => {
     getDocs(collection(db, "users"))
@@ -33,32 +45,53 @@ function App() {
       });
   };
 
-  chatTurbo("You are a helpful assistant", [
-    { role: "user", content: "Hello! How Are you Today?" },
-  ]);
+  //working chat completion that takes an array of messages to be used later
+  // chatTurbo("You are a helpful assistant", [
+  //   { role: "user", content: "Hello! How Are you Today?" },
+  // ]);
+
+  //add bionics reading to gpt
 
   return (
-    <Flex minHeight="100vh" justify="center">
+    <Flex minHeight="100vh">
+      <Flex flex="1 1 0">
+        <Flex width="100%" flexDirection="column">
+          <Center bg="gray.700" py="20px">
+            New Chat
+          </Center>
+        </Flex>
+      </Flex>
       <Flex
         position="relative"
-        flex="1 1 0"
-        maxWidth="1440px"
+        flex="7 1 0"
         justify="space-between"
         flexDirection="column"
       >
-        <Flex flexDirection="column">
-          <Center flex="1 1 0" bg={"gray.600"}>
-            Box
+        <Flex pb={150} flexDirection="column">
+          <Center
+            px={50}
+            position="sticky"
+            top={0}
+            width="100%"
+            bgColor={"gray.700"}
+          >
+            CHAT
           </Center>
-          <Center flex="1 1 0" bg={"gray.600"}>
-            Box
-          </Center>
-          <Center flex="1 1 0" bg={"gray.600"}>
-            Box
-          </Center>
+          {messages.map((message) => (
+            <Center
+              py={50}
+              bg={message.role === "user" ? "gray.800" : "gray.700"}
+              key={Math.random()}
+            >
+              <Center maxWidth="800px"> {message.content}</Center>
+            </Center>
+          ))}
         </Flex>
-        <Center width="100%" position="absolute" bottom="5">
-          <ChatInput onSubmit={handleSubmit} />
+
+        <Center position="sticky" bottom="5">
+          <Box width="100%" maxWidth="800px">
+            <ChatInput onSubmit={handleSubmit} />
+          </Box>
         </Center>
       </Flex>
     </Flex>
