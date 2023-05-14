@@ -24,11 +24,7 @@ const ChatInput = ({ onSubmit }) => {
         bg="gray.700"
       ></Input>
       <InputRightElement>
-        <FaPaperPlane
-          onClick={(input) => {
-            onSubmit(input);
-          }}
-        />
+        <FaPaperPlane onClick={() => onSubmit(input)} />
       </InputRightElement>
     </InputGroup>
   );

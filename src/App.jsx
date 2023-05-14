@@ -12,10 +12,11 @@ import {
   addDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
   arrayUnion,
 } from "firebase/firestore";
-import ChatInput from "./components/chatInput";
+import ChatInput from "./components/ChatInput.jsx";
 import { db } from "./firebase/firebaseConfig.js";
 import { useEffect, useState } from "react";
 import chatTurbo from "./modules/chatTurbo";
@@ -51,7 +52,7 @@ import { Outlet, useParams } from "react-router-dom";
     id: "",
     name: "",
     messages: [
-      { role: "system", content: "" },
+      { role: "system", content: "" }, //this actually isn't stored in the chat object
       { role: "user", content: "" },
       { role: "assistant", content: "" },
     ],
@@ -64,9 +65,9 @@ function App() {
   const [isloading, setLoading] = useState(false);
   const { id } = useParams();
 
-  //fetch chats
+  //intial fetch of chats list
   useEffect(() => {
-    //fetch chats from firestore
+    //fetches chats from firestore
     const fetchData = async () => {
       const chatData = await getDocs(collection(db, "chats"));
       const chatArray = chatData.docs.map((doc) => {
@@ -75,7 +76,6 @@ function App() {
           ...doc.data(),
         };
       });
-
       //update local state to match firestore
       setChats(chatArray);
     };
@@ -83,15 +83,19 @@ function App() {
     fetchData();
   }, []);
 
-  //SENDS THE USERS INPUT TO OPENAI TO PROCESS AND DISPLAY A REQUEST
+  //ON CHAT BOX SUBMISSION
+  //SENDS THE USERS INPUT TO OPENAI TO PROCESS RETURN A REPONSE
   const handleSubmit = async (input) => {
     //if not on a specific chat then create a new chat and go to it
+    //...code will go here
 
-    const userMessage = { role: "user", content: input };
+    console.log(input)
+
+    // const userMessage = { role: "user", content: input }; ..
 
     //add message to currently selected document
-    const chatRef = doc(db, "chats", id);
-    await updateDoc(chatRef, { messages: arrayUnion(userMessage) });
+    // const chatRef = doc(db, "chats", id); ..
+    // await updateDoc(chatRef, { messages: arrayUnion(userMessage) }); ..
 
     // prettier-ignore
     // const userMessage = [...messages, {"role": "user", "content": input}]
@@ -104,14 +108,31 @@ function App() {
   const handleNewChat = async () => {
     //add new chat to firestore
     setLoading(true);
-    addDoc(collection(db, "chats"), { name: "chat", message: [] })
+    addDoc(collection(db, "chats"), { name: "chat", messages: [] })
       .then((docRef) => {
+        //update local chat state
+        setChats([
+          ...chats,
+          {
+            id: docRef.id,
+            name: "chat",
+            messages: [],
+          },
+        ]);
         console.log("Document written with ID: ", docRef.id);
       })
       .catch((err) => {
         console.error("Error adding document: ", err);
       })
       .finally(setLoading(false));
+  };
+
+  const handleChatDelete = async (id) => {
+    //find and delete document from firestore
+    await deleteDoc(doc(db, "chats", id));
+
+    //update local state
+    setChats(chats.filter((v) => v.id !== id));
   };
 
   return (
@@ -122,7 +143,13 @@ function App() {
             <Button onClick={handleNewChat}>New Chat</Button>
           </Center>
           {!isloading ? (
-            chats.map((chat) => <Chat key={chat.id} data={chat}></Chat>)
+            chats.map((chat) => (
+              <Chat
+                key={chat.id}
+                data={chat}
+                onDelete={handleChatDelete}
+              ></Chat>
+            ))
           ) : (
             <Spinner />
           )}

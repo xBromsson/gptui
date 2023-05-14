@@ -1,10 +1,16 @@
-import { Center } from "@chakra-ui/react";
+import { Center, Flex } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { FaTrash } from "react-icons/fa";
 
-const Chat = ({ data }) => {
+const Chat = ({ data, onDelete }) => {
   return (
     <Link to={"./" + data.id}>
-      <Center>{data.name}</Center>
+      <Flex>
+        <Center flex="1 1 auto">{data.name}</Center>
+        <Center flex="1 1 auto">
+          <FaTrash onClick={() => onDelete(data.id)} />
+        </Center>
+      </Flex>
     </Link>
   );
 };
