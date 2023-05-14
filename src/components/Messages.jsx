@@ -1,10 +1,11 @@
-import { Box, Center, Flex, Spinner, VStack } from "@chakra-ui/react";
+import { Center, Flex, Spinner, VStack } from "@chakra-ui/react";
 import { useEffect, useState, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig.js";
 import { FaTrash } from "react-icons/fa";
 import ChatInput from "./ChatInput.jsx";
+import chatTurbo from "../modules/chatTurbo.js";
 
 const Messages = (onSubmit) => {
   const { id } = useParams();
@@ -26,14 +27,26 @@ const Messages = (onSubmit) => {
 
   const handleSubmit = async (input) => {
     const userMessage = { role: "user", content: input };
+    const messagesArray = [...chat.messages, userMessage];
 
     //updates firebase chat with new user message
     await updateDoc(doc(db, "chats", id), {
       messages: arrayUnion(userMessage),
     });
 
+    //get response from openai api
+    const data = await chatTurbo("You are a helpful assistant", messagesArray);
+    setChat({
+      ...chat,
+      messages: [
+        ...chat.messages,
+        userMessage,
+        { role: "assistant", content: data },
+      ],
+    });
+
     //updates local chat messages
-    setChat({ ...chat, messages: [...chat.messages, userMessage] });
+    // setChat({ ...chat, messages: [...chat.messages, userMessage] });
   };
 
   const handleTrash = async () => {
