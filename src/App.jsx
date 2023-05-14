@@ -61,7 +61,6 @@ import { Outlet, useParams } from "react-router-dom";
 
 function App() {
   const [chats, setChats] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [isloading, setLoading] = useState(false);
   const { id } = useParams();
 
@@ -89,13 +88,27 @@ function App() {
     //if not on a specific chat then create a new chat and go to it
     //...code will go here
 
-    console.log(input)
+    console.log(input);
 
-    // const userMessage = { role: "user", content: input }; ..
+    const userMessage = { role: "user", content: input };
 
     //add message to currently selected document
-    // const chatRef = doc(db, "chats", id); ..
-    // await updateDoc(chatRef, { messages: arrayUnion(userMessage) }); ..
+    const chatRef = doc(db, "chats", id);
+    await updateDoc(chatRef, { messages: arrayUnion(userMessage) });
+
+    //update local state
+    setChats((prevChats) => {
+      const updatedChats = prevChats.map((chat) => {
+        if (chat.id === id) {
+          return {
+            ...chat, messages: [...chat.messages, userMessage],
+          }
+        } else {
+          return chat;
+        }
+      })
+      return updatedChats;
+    })
 
     // prettier-ignore
     // const userMessage = [...messages, {"role": "user", "content": input}]
@@ -136,58 +149,21 @@ function App() {
   };
 
   return (
-    <Flex minHeight="100vh">
-      <Flex flex="1 1 0">
-        <Flex width="100%" flexDirection="column">
-          <Center position="sticky" top={0} bg="gray.700" py="20px">
-            <Button onClick={handleNewChat}>New Chat</Button>
-          </Center>
-          {!isloading ? (
-            chats.map((chat) => (
-              <Chat
-                key={chat.id}
-                data={chat}
-                onDelete={handleChatDelete}
-              ></Chat>
-            ))
-          ) : (
-            <Spinner />
-          )}
-        </Flex>
-      </Flex>
-      <Flex
-        position="relative"
-        flex="7 1 0"
-        justify="space-between"
-        flexDirection="column"
-      >
-        <Flex pb={150} flexDirection="column">
-          <Center
-            px={50}
-            position="sticky"
-            top={0}
-            width="100%"
-            bgColor={"gray.700"}
-          >
-            CHAT
-          </Center>
-          <Outlet />
-          {/* {messages.map((message) => (
-            <Center
-              py={50}
-              bg={message.role === "user" ? "gray.800" : "gray.700"}
-              key={Math.random()}
-            >
-              <Center maxWidth="800px"> {message.content}</Center>
-            </Center>
-          ))} */}
-        </Flex>
-
-        <Center position="sticky" bottom="5">
-          <Box width="100%" maxWidth="800px">
-            <ChatInput onSubmit={handleSubmit} />
-          </Box>
+    <Flex height="100vh" minHeight="100vh">
+      <Flex flex="1 1 0" flexDirection="column">
+        <Center position="sticky" top={0} bg="gray.700" py="20px">
+          <Button onClick={handleNewChat}>New Chat</Button>
         </Center>
+        {!isloading ? (
+          chats.map((chat) => (
+            <Chat key={chat.id} data={chat} onDelete={handleChatDelete}></Chat>
+          ))
+        ) : (
+          <Spinner />
+        )}
+      </Flex>
+      <Flex align="center" flex="7 1 0" flexDirection="column">
+        <Outlet />
       </Flex>
     </Flex>
   );
