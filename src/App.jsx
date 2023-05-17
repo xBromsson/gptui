@@ -1,49 +1,16 @@
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Spacer,
-  Spinner,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Center, Flex, Spinner, VStack } from "@chakra-ui/react";
 import {
   collection,
   addDoc,
   getDocs,
-  updateDoc,
   deleteDoc,
   doc,
-  arrayUnion,
 } from "firebase/firestore";
-import ChatInput from "./components/ChatInput.jsx";
 import { db } from "./firebase/firebaseConfig.js";
 import { useEffect, useState } from "react";
 import chatTurbo from "./modules/chatTurbo";
-import Chat from "./components/Chat";
-import { Outlet, useParams } from "react-router-dom";
-
-// FOR LATER: HOW TO ADD DATA TO FIRESTORE
-// addDoc(collection(db, "messages"), input)
-//   .then((docRef) => {
-//     console.log("Document written with ID: ", docRef.id);
-//   })
-//   .catch((err) => {
-//     console.error("Error adding document: ", err);
-//   });
-
-// FOR LATER: HOW TO GET DATA FROM FIRESTORE
-// const getData = () => {
-//   getDocs(collection(db, "users"))
-//     .then((snapshot) => {
-//       snapshot.forEach((doc) => {
-//         console.log(`${doc.id} => ${doc.data().first}`);
-//       });
-//     })
-//     .catch((err) => {
-//       console.error("Error getting Documents: ", err);
-//     });
-// };
+import { Outlet } from "react-router-dom";
+import ChatInput from "./components/ChatInput.jsx";
 
 //just for my visual pleasure, CHATS LOOK LIKE THIS:
 
@@ -60,110 +27,47 @@ import { Outlet, useParams } from "react-router-dom";
 ];
 
 function App() {
-  const [chats, setChats] = useState([]);
-  const [isloading, setLoading] = useState(false);
-  const { id } = useParams();
+  const [isLoading, setLoading] = useState();
+  const [chat, setChat] = useState([]);
+  const [input, setInput] = useState();
 
-  //intial fetch of chats list
-  useEffect(() => {
-    //fetches chats from firestore
-    const fetchData = async () => {
-      const chatData = await getDocs(collection(db, "chats"));
-      const chatArray = chatData.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      });
-      //update local state to match firestore
-      setChats(chatArray);
-    };
-
-    fetchData();
-  }, []);
-
-  //ON CHAT BOX SUBMISSION
-  //SENDS THE USERS INPUT TO OPENAI TO PROCESS RETURN A REPONSE
-  const handleSubmit = async (input) => {
-    //if not on a specific chat then create a new chat and go to it
-    //...code will go here
-
+  const handleInput = (input) => {
     console.log(input);
+    setChat((prevChat) => [...prevChat, { role: "user", content: input }]);
 
-    const userMessage = { role: "user", content: input };
+    const inputObj = [...chat, { role: "user", content: input }];
 
-    //add message to currently selected document
-    const chatRef = doc(db, "chats", id);
-    await updateDoc(chatRef, { messages: arrayUnion(userMessage) });
-
-    //update local state
-    setChats((prevChats) => {
-      const updatedChats = prevChats.map((chat) => {
-        if (chat.id === id) {
-          return {
-            ...chat, messages: [...chat.messages, userMessage],
-          }
-        } else {
-          return chat;
-        }
-      })
-      return updatedChats;
-    })
-
-    // prettier-ignore
-    // const userMessage = [...messages, {"role": "user", "content": input}]
-
-    // prettier-ignore
-    // const data = await chatTurbo("You are a helpful assistant", userMessage);
-    // setMessages([...userMessage, { role: "assistant", content: data }]);
-  };
-
-  const handleNewChat = async () => {
-    //add new chat to firestore
-    setLoading(true);
-    addDoc(collection(db, "chats"), { name: "chat", messages: [] })
-      .then((docRef) => {
-        //update local chat state
-        setChats([
-          ...chats,
-          {
-            id: docRef.id,
-            name: "chat",
-            messages: [],
-          },
+    chatTurbo("You are a helpful assistant", inputObj)
+      .then((response) => {
+        // Add the assistant's response to the chat state
+        setChat((prevChat) => [
+          ...prevChat,
+          { role: "assistant", content: response },
         ]);
-        console.log("Document written with ID: ", docRef.id);
       })
-      .catch((err) => {
-        console.error("Error adding document: ", err);
-      })
-      .finally(setLoading(false));
+      .catch((error) => {
+        console.error("Error fetching response:", error);
+      });
   };
 
-  const handleChatDelete = async (id) => {
-    //find and delete document from firestore
-    await deleteDoc(doc(db, "chats", id));
-
-    //update local state
-    setChats(chats.filter((v) => v.id !== id));
-  };
+  console.log(chat);
 
   return (
-    <Flex height="100vh" minHeight="100vh">
-      <Flex flex="1 1 0" flexDirection="column">
-        <Center position="sticky" top={0} bg="gray.700" py="20px">
-          <Button onClick={handleNewChat}>New Chat</Button>
-        </Center>
-        {!isloading ? (
-          chats.map((chat) => (
-            <Chat key={chat.id} data={chat} onDelete={handleChatDelete}></Chat>
-          ))
-        ) : (
-          <Spinner />
-        )}
+    <Flex justify="center" height="100vh">
+      <Flex flex="1 1 auto" maxWidth="800px" flexDirection="column">
+        <Center p="5px">Chat GPT 3.5</Center>
+        <VStack pb="125px" spacing="0" flex="1 1 auto">
+          {chat.map((message) => (
+            <Center key={message.content} p="25px" width="100%" bg="blue.500">
+              {message.content}
+            </Center>
+          ))}
+        </VStack>
       </Flex>
-      <Flex align="center" flex="7 1 0" flexDirection="column">
-        <Outlet />
+      <Flex w="100%" maxWidth="800px" position="fixed" bottom="5px">
+        <Center flex="1 1 auto">
+          <ChatInput onSubmit={handleInput}></ChatInput>
+        </Center>
       </Flex>
     </Flex>
   );

@@ -12,7 +12,7 @@ const ChatInput = ({ onSubmit }) => {
   };
 
   return (
-    <InputGroup zIndex={1}>
+    <InputGroup w="100%" zIndex={1}>
       <Input
         onChange={(event) => {
           setInput(event.target.value);

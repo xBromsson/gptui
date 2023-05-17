@@ -4,13 +4,11 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
 import "./index.css";
-import Messages from "./components/Messages";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: [{ path: "/:id", element: <Messages /> }],
   },
 ]);
 

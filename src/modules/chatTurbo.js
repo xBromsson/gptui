@@ -7,9 +7,7 @@ function chatTurbo(system, chat) {
       endpoint: "https://api.openai.com/v1/chat/completions",
     };
   
-    return new Promise((resolve, reject) => {
-
-          
+    return new Promise((resolve, reject) => {  
         system = {"role": "system", "content": system}
         // chat.unshift(system)
 
@@ -33,7 +31,6 @@ function chatTurbo(system, chat) {
             resolve(res.data.choices[0].message.content);
           })
           .catch((err) => {
-            console.error(err);
             reject(err);
           })
         })
