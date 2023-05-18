@@ -3,7 +3,7 @@ import axios from "axios";
 function chatTurbo(system, chat) {
     const config = {
       organization: "org-jXq1jagmrAh2SvVmFUvvOHlj",
-      apiKey: "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",
+      apiKey: "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",
       endpoint: "https://api.openai.com/v1/chat/completions",
     };
   
