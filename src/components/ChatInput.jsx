@@ -8,6 +8,7 @@ const ChatInput = ({ onSubmit }) => {
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       onSubmit(input);
+      setInput("");
     }
   };
 
@@ -24,7 +25,12 @@ const ChatInput = ({ onSubmit }) => {
         bg="gray.700"
       ></Input>
       <InputRightElement>
-        <FaPaperPlane onClick={() => onSubmit(input)} />
+        <FaPaperPlane
+          onClick={() => {
+            onSubmit(input);
+            setInput("");
+          }}
+        />
       </InputRightElement>
     </InputGroup>
   );

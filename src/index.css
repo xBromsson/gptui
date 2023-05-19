@@ -1,0 +1,16 @@
+.markdown-content p {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.markdown-content ol {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  margin-left: 25px;
+}
+
+.markdown-content ul {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  margin-left: 25px;
+}
