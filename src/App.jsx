@@ -1,24 +1,8 @@
-import {
-  Box,
-  Button,
-  Center,
-  CircularProgress,
-  Flex,
-  Progress,
-  Spinner,
-  VStack,
-} from "@chakra-ui/react";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "./firebase/firebaseConfig.js";
-import { useEffect, useState } from "react";
+import { Box, Center, Flex, Progress, VStack } from "@chakra-ui/react";
+
+import { useState } from "react";
 import chatTurbo from "./modules/chatTurbo";
-import { Outlet } from "react-router-dom";
+
 import ChatInput from "./components/ChatInput.jsx";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -44,7 +28,6 @@ import "./index.css";
 function App() {
   const [isLoading, setLoading] = useState(false);
   const [chat, setChat] = useState([]);
-  const [input, setInput] = useState();
 
   const components = {
     code({ node, inline, className, children, ...props }) {
