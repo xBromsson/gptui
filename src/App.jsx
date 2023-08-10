@@ -76,11 +76,12 @@ function App() {
   console.log(chat);
 
   return (
-    <Flex justify="center" height="100vh">
+    <Flex backgroundColor={"gray.800"} justify="center" height="100%">
       <Flex flex="1 1 auto" maxWidth="800px" flexDirection="column">
         <Center
           bgGradient={"linear(to right, gray.800, gray.700, gray.800 )"}
           p="5px"
+          color={"white"}
         >
           Chat GPT 3.5
         </Center>
@@ -91,6 +92,7 @@ function App() {
               p="25px"
               width="100%"
               key={message.content}
+              color={"white"}
               bgGradient={
                 message.role === "user"
                   ? "linear(gray.800, gray.800)"

@@ -23,6 +23,7 @@ const ChatInput = ({ onSubmit }) => {
         placeholder="Send a Message"
         size="lg"
         bg="gray.700"
+        color={"white"}
       ></Input>
       <InputRightElement>
         <FaPaperPlane
