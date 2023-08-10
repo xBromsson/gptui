@@ -11,14 +11,13 @@ import gfm from "remark-gfm";
 
 import "./index.css";
 
-//just for my visual pleasure, CHATS LOOK LIKE THIS:
-
+//just for my visual pleasure, CHAT objects LOOK LIKE THIS:
 [
   {
     id: "",
     name: "",
     messages: [
-      { role: "system", content: "" }, //this actually isn't stored in the chat object
+      { role: "system", content: "" }, //this actually isn't stored in the chat object: it is inserted each time in the chatTurbo module for each request.
       { role: "user", content: "" },
       { role: "assistant", content: "" },
     ],
@@ -29,6 +28,8 @@ function App() {
   const [isLoading, setLoading] = useState(false);
   const [chat, setChat] = useState([]);
 
+  // this is used for formatting the gpt response to be more user friendly
+  // TO DO: this block was largely copied. It needs to be reviewed and understood.
   const components = {
     code({ node, inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || "");
@@ -48,6 +49,7 @@ function App() {
     },
   };
 
+  //sends users chat input to open ai to get a response. then updates component state
   const handleInput = (input) => {
     setLoading(true);
     console.log(input);
@@ -60,7 +62,6 @@ function App() {
       inputArray
     )
       .then((response) => {
-        // Add the assistant's response to the chat state
         setChat((prevChat) => [
           ...prevChat,
           { role: "assistant", content: response },
@@ -77,7 +78,9 @@ function App() {
 
   return (
     <Flex backgroundColor={"gray.800"} justify="center" height="100%">
+      {/* MAIN CONTENT CONTAINER */}
       <Flex flex="1 1 auto" maxWidth="800px" flexDirection="column">
+        {/* HEADER */}
         <Center
           bgGradient={"linear(to right, gray.800, gray.700, gray.800 )"}
           p="5px"
@@ -86,6 +89,7 @@ function App() {
           Chat GPT 3.5
         </Center>
 
+        {/* CHAT FEED */}
         <VStack pb="175px" flex="1 1 auto">
           {chat.map((message) => (
             <Box
@@ -120,6 +124,8 @@ function App() {
           ) : null}
         </VStack>
       </Flex>
+
+      {/* CHAT INPUT CONTAINER */}
       <Flex w="100%" maxWidth="800px" position="fixed" bottom="50px">
         <Center flex="1 1 auto">
           <ChatInput onSubmit={handleInput}></ChatInput>
